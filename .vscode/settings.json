@@ -1,0 +1,10 @@
+{
+  "files.exclude": {
+    "__error": "Not found",
+    "LICENSE": true,
+    ".gitignore": true,
+    ".vscode": true,
+    ".git": true,
+    "README.md": true
+  }
+}
