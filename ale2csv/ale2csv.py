@@ -1,6 +1,6 @@
-from helpers import read_file_to_string
-from parser import parse_ale
-from render import render_csv
+from .helpers import read_file_to_string
+from .parser import parse_ale
+from .render import render_csv
 
 def ale2csv(file_path, destination, converters=None):
     file_string = read_file_to_string(file_path)
