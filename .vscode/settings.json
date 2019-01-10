@@ -2,9 +2,9 @@
   "files.exclude": {
     "__error": "Not found",
     "LICENSE": true,
-    ".gitignore": true,
-    ".vscode": true,
     ".git": true,
-    "README.md": true
+    "README.md": true,
+    ".gitignore": true,
+    ".vscode": true
   }
 }
