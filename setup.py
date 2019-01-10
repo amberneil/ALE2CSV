@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(
-        name='ALE2CSV',
+        name='ale2csv',
         version='1.0',
         description='.ALE to .CSV converter',
         author='Neil Hansen',
