@@ -1,19 +1,9 @@
-# Heading
-# FIELD_DELIM	TABS
-# VIDEO_FORMAT	1080
-# AUDIO_FORMAT	48kHz
-# TAPE	001
-# FPS	25.000
-
-# Column
-# Path	Media	Name	Tape	Start	Duration	End	FPS	Camerafps 	Resolution	Codec	MD5	Size	LUT
-# Data
-
 _BLANK_LINE = ""
 _HEADING_LABEL = 'Heading'
 _COLUMN_LABEL = 'Column'
 _DATA_LABEL = 'Data'
 _DELIMITER = "\t"
+_LINE_BREAK = "\n"
 
 def _get_slice(name, text_lines, start_condition, end_condition):
     section_start = None
@@ -79,7 +69,7 @@ def _data_end(text, count, text_lines):
     if count == len(text_lines) - 1:
         return True
         
-def _format_header(header_list):
+def _format_heading(header_list):
     assert header_list[0] == _HEADING_LABEL, 'Heading label not found.'
     header = {}
 
@@ -93,34 +83,59 @@ def _format_header(header_list):
 
 def _format_column(column_list):
     assert column_list[0] == _COLUMN_LABEL, 'Column label not found.'
-    return tuple(column_list[1].split(_DELIMITER))
+    return column_list[1].split(_DELIMITER)
 
 def _format_data(data_list):
     assert data_list[0] == _DATA_LABEL, 'Data label not found.'
     data = []
     for i in data_list[1:]:
         data.append(i.split(_DELIMITER))
-    return [tuple(i) for i in data]
+    return data
 
-file_path = '/Users/amberserver/Desktop/LTO Reports/Test Project/20181015_201154/Test Project_10107.ALE'
-from main import read_file_to_string
+def _string_labels_to_integers(converter_dict, column_label_list):
+    data_indices = {}
+    for string_key, converter_func in converter_dict.items():
+        try:
+            label_index = column_label_list.index(string_key)
+        except ValueError:
+            raise ValueError('Converter column label not found in ALE file.')
+        data_indices[label_index] = converter_func
+    
+    return data_indices
 
-def _combine_parsers(file_string):
-    text_lines = read_file_to_string(file_path).split('\n')
+
+def parse_ale(file_string, converters=None):
+    text_lines = file_string.split(_LINE_BREAK)
     heading_lines = text_lines[_get_slice('heading', text_lines, _heading_start, _heading_end)]
     column_lines = text_lines[_get_slice('column', text_lines, _column_start, _column_end)]
     data_lines = text_lines[_get_slice('data', text_lines, _data_start, _data_end)]
 
+    formatted_heading =_format_heading(heading_lines)
+    formatted_column = _format_column(column_lines)
+    formatted_data = _format_data(data_lines)
+    
+    if converters:
+        if not isinstance(converters, dict):
+            raise TypeError('Converters must be in a dictionary.')
+
+        if not all(hasattr(value, '__call__') for value in converters.values()):
+            raise TypeError('Converters values must be callables.')
+
+        is_all_strings = all(isinstance(key, str) for key in converters.keys())
+        is_all_integers = all(isinstance(key, int) for key in converters.keys())
+        
+        if not is_all_strings and not is_all_integers:
+            raise TypeError('Converters keys must be either all strings or all integers') 
+
+        if is_all_strings:
+            converters = _string_labels_to_integers(converters, formatted_column)
+        
+        for row in formatted_data:
+            for label_index, converter_func in converters.items():                        
+                row[label_index] = converter_func(row[label_index])         
+
     return {
-        'heading': _format_heading(heading_lines)
-        'columns': _format_column(column_lines)
-        'data': _format_data(data_lines)
+        'heading': formatted_heading,
+        'columns': tuple(formatted_column),
+        'data': [tuple(row) for row in formatted_data]
     }
-
-d = data_lines[1].split(_DELIMITER)
-
-
-print(len(_format_column(column_lines)))
-for i in _format_data(data_lines)[:10]:
-    print(i)
-
