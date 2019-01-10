@@ -6,5 +6,5 @@ setup(
         description='.ALE to .CSV converter',
         author='Neil Hansen',
         author_email='neil@amber.film',
-        packages=['main'],
+        packages=['ale2csv'],
     )
