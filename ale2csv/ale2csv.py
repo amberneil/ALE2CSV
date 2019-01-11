@@ -5,6 +5,8 @@ from .render import render_csv
 def ale2csv(target, destination=None, converters=None):
     
     file_string = read_target(target)
+    if len(file_string) == 0:
+        raise ValueError('ale2csv received an empty string.')
     
     ale_map = parse_ale(file_string, converters=converters)
 
