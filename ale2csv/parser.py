@@ -105,7 +105,7 @@ def _string_labels_to_integers(converter_dict, column_label_list):
 
 def validate_converters(converters, column_label_list):
     if not isinstance(converters, dict):
-    raise TypeError('Converters must be in a dictionary.')
+        raise TypeError('Converters must be in a dictionary.')
 
     if not all(hasattr(value, '__call__') for value in converters.values()):
         raise TypeError('Converters values must be callables.')
