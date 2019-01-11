@@ -103,6 +103,24 @@ def _string_labels_to_integers(converter_dict, column_label_list):
     
     return data_indices
 
+def validate_converters(converters, column_label_list):
+    if not isinstance(converters, dict):
+    raise TypeError('Converters must be in a dictionary.')
+
+    if not all(hasattr(value, '__call__') for value in converters.values()):
+        raise TypeError('Converters values must be callables.')
+
+    is_all_strings = all(isinstance(key, str) for key in converters.keys())
+    is_all_integers = all(isinstance(key, int) for key in converters.keys())
+    
+    if not is_all_strings and not is_all_integers:
+        raise TypeError('Converters keys must be either all strings or all integers') 
+
+    if is_all_strings:
+        converters = _string_labels_to_integers(converters, column_label_list)
+    
+    return converters
+
 
 def parse_ale(file_string, converters=None):
     text_lines = file_string.split(_LINE_BREAK)
@@ -115,21 +133,7 @@ def parse_ale(file_string, converters=None):
     formatted_data = _format_data(data_lines)
     
     if converters:
-        if not isinstance(converters, dict):
-            raise TypeError('Converters must be in a dictionary.')
-
-        if not all(hasattr(value, '__call__') for value in converters.values()):
-            raise TypeError('Converters values must be callables.')
-
-        is_all_strings = all(isinstance(key, str) for key in converters.keys())
-        is_all_integers = all(isinstance(key, int) for key in converters.keys())
-        
-        if not is_all_strings and not is_all_integers:
-            raise TypeError('Converters keys must be either all strings or all integers') 
-
-        if is_all_strings:
-            converters = _string_labels_to_integers(converters, formatted_column)
-        
+        converters = validate_converters(converters, formatted_column)      
         for row in formatted_data:
             for label_index, converter_func in converters.items():                        
                 row[label_index] = converter_func(row[label_index])         
