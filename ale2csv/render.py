@@ -10,7 +10,7 @@ def render_csv(data_list, destination=None, column_labels=None):
             shutil.copyfileobj(csv_buffer, f)
         return None
     else:
-        return csv_buffer.getvalue()
+        return csv_buffer
 
 
 def format_csv(data_list, column_labels=None):
